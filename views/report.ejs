@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reports</title>
+    <link rel="stylesheet" href="styles/report.css" />
+    <link rel="stylesheet" href="styles/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="styles/fontawesome/css/all.css" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">DrugVerify</div>
+        <a href="/admin" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/managedrugs" class="nav-item"><i class="fas fa-pills"></i> Manage Drugs</a>
+        <a href="/pharmacist" class="nav-item"><i class="fas fa-user-md"></i> Pharmacists</a>
+        <a href="/expireddrugs" class="nav-item"><i class="fas fa-calendar-times"></i> Expired Drugs</a>
+        <a href="/report" class="nav-item active"><i class="fas fa-chart-bar"></i> Reports</a>
+       
+        <a href="/logout" class="nav-item" style="margin-top: auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h2>Reports</h2>
+            <p>View and manage reported drug issues</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Drug Name</th>
+                        <th>Pharmacist</th>
+                        <th>Report Text</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="report-list">
+                    <!-- Reports will be inserted dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const reportList = document.getElementById("report-list");
+            try {
+                const response = await fetch("/api/reports");
+                const reports = await response.json();
+                reportList.innerHTML = "";
+                reports.forEach(report => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${report.id}</td>
+                        <td>${report.drug ? report.drug.name : 'Unknown'}</td>
+                        <td>${report.pharmacist ? report.pharmacist.name : 'Unknown'}</td>
+                        <td>${report.report_text}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteReport('${report.id}')">Delete</button></td>
+                    `;
+                    reportList.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error fetching reports:", error);
+            }
+        });
+
+        async function deleteReport(reportId) {
+            if (!confirm("Are you sure you want to delete this report?")) return;
+            try {
+                const response = await fetch(`/api/reports/${reportId}`, { method: "DELETE" });
+                if (response.ok) {
+                    alert("Report deleted successfully.");
+                    // Refresh the report list by reloading the page
+                    location.reload();
+                } else {
+                    const result = await response.json();
+                    alert("Error deleting report: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error deleting report:", error);
+                alert("An error occurred while deleting the report.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Pharmacists</title>
+    <link rel="stylesheet" href="styles/pharmacist.css">
+    <link rel="stylesheet" href="styles/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/fontawesome/css/all.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">PharmaVerify</div>
+        <a href="/admin" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/managedrugs" class="nav-item"><i class="fas fa-pills"></i> Manage Drugs</a>
+        <a href="/pharmacist" class="nav-item active"><i class="fas fa-user-md"></i> Pharmacists</a>
+        <a href="/expireddrugs" class="nav-item"><i class="fas fa-calendar-times"></i> Expired Drugs</a>
+        <a href="/report" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        <a href="/logout" class="nav-item" style="margin-top: auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title">Manage Pharmacists</h1>
+        <p class="page-description">Overview of all registered pharmacists in the system</p>
+        
+        <div class="total-count">
+            Total Pharmacists: <span id="totalPharmacists">0</span>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPharmacistModal">
+                <i class="fas fa-plus-circle"></i> Add New Pharmacist
+            </button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search pharmacists...">
+        </div>
+
+        <div id="pharmacistsContainer"></div>
+    </div>
+
+    <!-- Bootstrap Modal Popup -->
+    <div class="modal fade" id="addPharmacistModal" tabindex="-1" aria-labelledby="addPharmacistModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPharmacistModalLabel">Add New Pharmacist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPharmacistForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" id="name" class="form-control" placeholder="Enter name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" class="form-control" placeholder="Enter email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Add Pharmacist</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchPharmacists();
+            document.querySelector("#addPharmacistForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                await addPharmacist();
+            });
+            document.querySelector("#searchInput").addEventListener("input", filterPharmacists);
+        });
+    
+        async function fetchPharmacists() {
+            try {
+                const response = await fetch("http://localhost:1200/api/pharmacists");
+                const pharmacists = await response.json();
+                document.querySelector("#totalPharmacists").innerText = pharmacists.length;
+                document.querySelector("#pharmacistsContainer").innerHTML = pharmacists.map(pharmacistTemplate).join("");
+            } catch (error) {
+                console.error("Error fetching pharmacists:", error);
+            }
+        }
+    
+        function pharmacistTemplate(pharmacist) {
+            return `
+                <div class="pharmacist-item">
+                    <h5>${pharmacist.name}</h5>
+                    <p>Email: ${pharmacist.email}</p>
+                    <button class="btn btn-danger btn-sm" onclick="deletePharmacist('${pharmacist.id}')">Delete</button>
+                </div>
+            `;
+        }
+    
+        async function addPharmacist() {
+            const name = document.querySelector("#name").value.trim();
+            const email = document.querySelector("#email").value.trim();
+            const password = document.querySelector("#password").value.trim();
+            const admin_id = "6dda4005-d11c-4f53-8ca1-ec1daddd00a1"; // Static Admin ID
+    
+            if (!name || !email || !password) {
+                alert("All fields are required!");
+                return;
+            }
+    
+            try {
+                const response = await fetch("http://localhost:1200/api/pharmacists/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password, admin_id })
+                });
+    
+                const data = await response.json();
+    
+                if (!response.ok) {
+                    alert(data.message || "Failed to add pharmacist");
+                    return;
+                }
+    
+                fetchPharmacists();
+                let modal = new bootstrap.Modal(document.getElementById("addPharmacistModal"));
+                modal.hide();
+                document.querySelector("#addPharmacistForm").reset();
+            } catch (error) {
+                console.error("Error adding pharmacist:", error);
+                alert("An error occurred while adding the pharmacist.");
+            }
+        }
+    
+        async function deletePharmacist(id) {
+            if (!id) {
+                console.error("Error: Invalid pharmacist ID");
+                return;
+            }
+    
+            if (!confirm("Are you sure you want to delete this pharmacist?")) return;
+    
+            try {
+                const response = await fetch(`http://localhost:1200/api/pharmacists/${id}`, {
+                    method: "DELETE",
+                });
+    
+                if (response.ok) {
+                    fetchPharmacists();
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || "Failed to delete pharmacist");
+                }
+            } catch (error) {
+                console.error("Error deleting pharmacist:", error);
+            }
+        }
+    
+        function filterPharmacists() {
+            const searchValue = document.querySelector("#searchInput").value.toLowerCase();
+            document.querySelectorAll(".pharmacist-item").forEach((item) => {
+                item.style.display = item.textContent.toLowerCase().includes(searchValue) ? "" : "none";
+            });
+        }
+    </script>
+    
+</body>
+</html>

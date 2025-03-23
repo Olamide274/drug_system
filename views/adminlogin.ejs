@@ -1,0 +1,43 @@
+<!-- adminlogin.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - PharmaVerify</title>
+    <link rel="stylesheet" href="/styles/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/styles/fontawesome/css/all.css" />
+  </head>
+  <body>
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+      <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%">
+        <h3 class="text-center">Admin Login</h3>
+        <form id="adminLoginForm">
+          <div class="mb-3">
+            <label for="adminEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="adminEmail" required />
+          </div>
+          <div class="mb-3">
+            <label for="adminPassword" class="form-label">Password</label>
+            <input type="password" class="form-control" id="adminPassword" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("adminEmail").value;
+        const password = document.getElementById("adminPassword").value;
+        const response = await fetch("/api/auth/login/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        if (response.ok) window.location.href = "/admin";
+        else alert("Login failed");
+      });
+    </script>
+  </body>
+</html>

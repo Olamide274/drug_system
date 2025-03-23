@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Drugs</title>
+    <link rel="stylesheet" href="styles/verifydrug.css">
+    <link rel="stylesheet" href="styles/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/fontawesome/css/all.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">DrugVerify</div>
+        <a href="/pharmacistadmin" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="/druginventory" class="nav-item">
+            <i class="fas fa-pills"></i> Drug Inventory
+        </a>
+        <a href="/verifydrug" class="nav-item active">
+            <i class="fas fa-check-circle"></i> Verify Drugs
+        </a>
+        <a href="/expireddrug" class="nav-item">
+            <i class="fas fa-calendar-times"></i> Expired Drugs
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="/pharmacistlogout" class="nav-item" style="margin-top: auto;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="header-section">
+            <h2>Verify Drugs</h2>
+            <p>Scan or enter drug details to verify authenticity</p>
+        </div>
+
+        <div class="verify-section">
+            <div class="scan-box">
+                <h5>Scan Drug Code</h5>
+                <form id="verificationForm">
+                    <div class="scan-area">
+                        <i class="fas fa-qrcode scan-icon"></i>
+                        <p>Place QR code in the scanning area</p>
+                        <small class="text-muted">or</small>
+                        <input type="text" id="serialNumber" class="form-control mt-3" placeholder="Enter drug serial number">
+                    </div>
+                    <button type="submit" class="btn-verify mt-3">
+                        <i class="fas fa-search"></i> Verify Drug
+                    </button>
+                </form>
+            </div>
+
+            <!-- Verification Result Section -->
+            <div class="verification-result" id="verificationResult" style="display: none;">
+                <div class="result-header">
+                    <i id="statusIcon" class="fas fa-check-circle result-icon result-success"></i>
+                    <h5 class="mb-0">Verification Result</h5>
+                </div>
+                
+                <div class="drug-details">
+                    <div class="detail-row">
+                        <span>Drug Name:</span>
+                        <strong id="productName">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Manufacturer:</span>
+                        <strong id="manufacturer">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Batch Number:</span>
+                        <strong id="batchNumber">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Manufacturing Date:</span>
+                        <strong id="manufacturingDate">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Expiry Date:</span>
+                        <strong id="expiryDate">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Status:</span>
+                        <strong id="statusText" class="text-success">-</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+        <div id="toastMessage" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('verificationForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+      
+            const serialNumber = document.getElementById('serialNumber').value.trim();
+            if (!serialNumber) {
+                showToast("Please enter a serial number.", "danger");
+                return;
+            }
+      
+            try {
+                const response = await fetch('/api/verification/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ serialNumber })
+                });
+      
+                const data = await response.json();
+                const statusElement = document.getElementById('statusText');
+      
+                if (response.ok) {
+                    // Update result based on verification status
+                    document.getElementById('productName').textContent = data.product.name;
+                    document.getElementById('manufacturer').textContent = data.product.manufacturer;
+                    document.getElementById('batchNumber').textContent = data.product.batchNumber;
+                    document.getElementById('manufacturingDate').textContent = data.product.manufacturingDate;
+                    document.getElementById('expiryDate').textContent = data.product.expiryDate;
+
+                    if (data.status === "verified") {
+                        statusElement.textContent = "Verified & Authentic";
+                        statusElement.classList.replace("text-danger", "text-success");
+                    } else {
+                        statusElement.textContent = "Fake or Expired";
+                        statusElement.classList.replace("text-success", "text-danger");
+                    }
+
+                    document.getElementById('verificationResult').style.display = 'block';
+                    showToast("Product successfully verified!", "success");
+                } else {
+                    statusElement.textContent = "Fake or Not Found";
+                    statusElement.classList.replace("text-success", "text-danger");
+                    document.getElementById('verificationResult').style.display = 'block';
+                    showToast("Invalid serial number or product not found.", "danger");
+                }
+            } catch (error) {
+                showToast("Error verifying the serial number. Please try again.", "warning");
+                console.error("❌ Verification error:", error);
+            }
+        });
+
+        // Function to show toast notifications
+        function showToast(message, type) {
+            const toastElement = document.getElementById("toastMessage");
+            const toastBody = toastElement.querySelector(".toast-body");
+            toastBody.textContent = message;
+            toastElement.className = `toast bg-${type} text-white`;
+            new bootstrap.Toast(toastElement).show();
+        }
+    </script>
+</body>
+</html>

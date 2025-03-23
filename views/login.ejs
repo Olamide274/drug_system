@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PharmaVerify - Login/Signup</title>
+  <meta name="description" content="Login or Sign up to PharmaVerify" />
+  <meta name="author" content="PharmaVerify" />
+  <meta property="og:image" content="/og-image.png" />
+  <link rel="stylesheet" href="styles/login.css">
+  <link rel="stylesheet" href="styles/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/fontawesome/css/all.css">
+</head>
+
+<body>
+  <!-- Login/Signup Section -->
+  <section class="auth-section py-5 mt-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+          <div class="card border-0 shadow-lg overflow-hidden">
+            <div class="row g-0">
+              <!-- Left Side - Login/Signup Image -->
+              <div class="col-md-5 auth-image-section d-none d-md-block">
+                <div
+                  class="auth-image h-100 d-flex align-items-center justify-content-center text-center text-white p-4">
+                  <div>
+                    <h2 class="mb-4">Welcome to PharmaVerify</h2>
+                    <p class="mb-0">Ensuring safe and authentic medications for everyone</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Side - Forms -->
+              <div class="col-md-7">
+                <div class="card-body p-4 p-lg-5">
+                  <!-- Login/Signup Toggle -->
+                  <ul class="nav nav-pills nav-fill mb-4" id="authTab" role="tablist">
+                    <li class="nav-item">
+                      <button class="nav-link active" id="login-tab" data-bs-toggle="pill" data-bs-target="#login"
+                        type="button" role="tab">Login</button>
+                    </li>
+                    <li class="nav-item">
+                      <button class="nav-link" id="signup-tab" data-bs-toggle="pill" data-bs-target="#signup"
+                        type="button" role="tab">Sign Up</button>
+                    </li>
+                  </ul>
+
+                  <!-- Forms Container -->
+                  <div class="tab-content" id="authTabContent">
+                    <!-- Login Form -->
+                    <div class="tab-pane fade show active" id="login" role="tabpanel">
+                      <form id="loginForm">
+                        <div class="mb-4">
+                          <label for="loginEmail" class="form-label">Email address</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                          </div>
+                        </div>
+                        <div class="mb-4">
+                          <label for="loginPassword" class="form-label">Password</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                          </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                      </form>
+                    </div>
+
+                    <!-- Signup Form -->
+                    <div class="tab-pane fade" id="signup" role="tabpanel">
+                      <form id="signupForm">
+                        <div class="mb-4">
+                          <label for="signupName" class="form-label">Full Name</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="signupName" required>
+                          </div>
+                        </div>
+                        <div class="mb-4">
+                          <label for="signupEmail" class="form-label">Email address</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="signupEmail" required>
+                          </div>
+                        </div>
+                        <div class="mb-4">
+                          <label for="signupPassword" class="form-label">Password</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="signupPassword" required>
+                          </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Toast Container (Top Right) -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+    <!-- Success Toast -->
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+      aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="successMessage"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive"
+      aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="errorMessage"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const loginForm = document.getElementById("loginForm");
+
+      function showToast(toastId, message) {
+        document.getElementById(toastId === "successToast" ? "successMessage" : "errorMessage").innerText = message;
+        const toast = new bootstrap.Toast(document.getElementById(toastId));
+        toast.show();
+      }
+
+      if (loginForm) {
+        loginForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+
+          try {
+            const response = await fetch("http://localhost:1200/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }), // Send email and password
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+              localStorage.setItem("token", data.token);
+
+              showToast("successToast", "✅ Login successful! Redirecting...");
+
+              // Debugging: Log the role and token
+              console.log("Role:", data.role);
+              console.log("Token:", data.token);
+
+              // Redirect based on user role
+              setTimeout(() => {
+                switch (data.role) {
+                  case "admin":
+                    console.log("Redirecting to /admin");
+                    window.location.href = "/admin";
+                    break;
+                  case "pharmacist":
+                    console.log("Redirecting to /pharmacistadmin");
+                    window.location.href = "/pharmacistadmin"; // Redirect to pharmacist dashboard
+                    break;
+                  case "user":
+                    console.log("Redirecting to /");
+                    window.location.href = "/";
+                    break;
+                  default:
+                    console.log("Redirecting to / (default)");
+                    window.location.href = "/"; // Default to homepage
+                }
+              }, 2000);
+            } else {
+              showToast("errorToast", "❌ " + data.error);
+            }
+          } catch (error) {
+            showToast("errorToast", "❌ Something went wrong. Please try again!");
+            console.error("Login error:", error);
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

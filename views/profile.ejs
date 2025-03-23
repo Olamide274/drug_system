@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="styles/profile.css">
+    <link rel="stylesheet" href="styles/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/fontawesome/css/all.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">DrugVerify</div>
+        <a href="/pharmacistadmin" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="/druginventory" class="nav-item">
+            <i class="fas fa-pills"></i> Drug Inventory
+        </a>
+        <a href="/verifydrug" class="nav-item">
+            <i class="fas fa-check-circle"></i> Verify Drugs
+        </a>
+        <a href="/expireddrug" class="nav-item">
+            <i class="fas fa-calendar-times"></i> Expired Drugs
+        </a>
+        <a href="/profile" class="nav-item active">
+            <i class="fas fa-user"></i> My Profile
+        </a>
+        <a href="/pharmacistlogout" class="nav-item" style="margin-top: auto;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="profile-header text-center">
+            <img src="/placeholder.jpg" alt="Profile" class="profile-avatar">
+            <h2>Dr. John Doe</h2>
+            <p>Senior Pharmacist</p>
+        </div>
+
+        <div class="profile-section">
+            <h5>Personal Information</h5>
+            <div class="info-grid">
+                <div><strong>Email:</strong> john.doe@example.com</div>
+                <div><strong>Phone:</strong> +1 234 567 8900</div>
+                <div><strong>License:</strong> PHR-12345</div>
+                <div><strong>Joined:</strong> Jan 15, 2024</div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <div class="recent-activity">
+                <h5>Recent Activity</h5>
+                <div id="recent-activity-list">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
